@@ -43,15 +43,48 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                 },
                 Granularity=self.config.get("granularity"),
                 Metrics=self.config.get("metrics"),
+                GroupBy=[
+                    {
+                        'Type': 'DIMENSION',
+                        'Key': 'LINKED_ACCOUNT'
+                    },
+                    {
+                        'Type': 'DIMENSION',
+                        'Key': 'SERVICE'
+                    },
+                ],
             )
             next_page = response.get("NextPageToken")
 
-            for row in response.get("ResultsByTime"):
-                for k, v in row.get("Total").items():
-                    yield {
-                        "time_period_start": row.get("TimePeriod").get("Start"),
-                        "time_period_end": row.get("TimePeriod").get("End"),
-                        "metric_name": k,
-                        "amount": v.get("Amount"),
-                        "amount_unit": v.get("Unit")
-                    }
+            results_by_time = response.get("ResultsByTime", [])
+
+            
+
+            for row in results_by_time:
+              time_period = row.get("TimePeriod", {})
+              total = row.get("Total", {})
+              groups = row.get("Groups", [])
+
+              for k, v in total.items():
+                  yield {
+                      "time_period_start": time_period.get("Start"),
+                      "time_period_end": time_period.get("End"),
+                      "group_keys": None,
+                      "metric_name": k,
+                      "amount": v.get("Amount"),
+                      "amount_unit": v.get("Unit")
+                  }
+
+              for group in groups:
+                  keys = group.get("Keys", [])
+                  metrics = group.get("Metrics", {})
+
+                  for k, v in metrics.items():
+                      yield {
+                          "time_period_start": time_period.get("Start"),
+                          "time_period_end": time_period.get("End"),
+                          "group_keys": keys,
+                          "metric_name": k,
+                          "amount": v.get("Amount"),
+                          "amount_unit": v.get("Unit")
+                      }

@@ -32,11 +32,11 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
 
     def get_records(self, context: Optional[dict]) -> Iterable[dict]:
         """Return a generator of row-type dictionary objects."""
-        next_page = True
+        next_page_token = None
         start_date = self.get_starting_timestamp(context)
         end_date = self._get_end_date()
 
-        while next_page:
+        while True:
             response = self.conn.get_cost_and_usage(
                 TimePeriod={
                     'Start': start_date.strftime("%Y-%m-%d"),
@@ -54,8 +54,9 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                         'Key': 'SERVICE'
                     },
                 ],
+                NextPageToken=next_page_token
             )
-            next_page = response.get("NextPageToken")
+            next_page_token = response.get("NextPageToken")
 
             results_by_time = response.get("ResultsByTime", [])
 
@@ -89,3 +90,5 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                           "amount": v.get("Amount"),
                           "amount_unit": v.get("Unit")
                       }
+            if not next_page_token:
+                break

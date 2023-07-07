@@ -37,14 +37,14 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
         end_date = self._get_end_date()
 
         while True:
-            response = self.conn.get_cost_and_usage(
-                TimePeriod={
+            params = {
+                'TimePeriod': {
                     'Start': start_date.strftime("%Y-%m-%d"),
                     'End': end_date.strftime("%Y-%m-%d")
                 },
-                Granularity=self.config.get("granularity"),
-                Metrics=self.config.get("metrics"),
-                GroupBy=[
+                'Granularity': self.config.get("granularity"),
+                'Metrics': self.config.get("metrics"),
+                'GroupBy': [
                     {
                         'Type': 'DIMENSION',
                         'Key': 'LINKED_ACCOUNT'
@@ -53,13 +53,15 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                         'Type': 'DIMENSION',
                         'Key': 'SERVICE'
                     },
-                ],
-                NextPageToken=next_page_token
-            )
-            next_page_token = response.get("NextPageToken")
+                ]
+            }
 
+            if next_page_token:
+                params['NextPageToken'] = next_page_token
+            
+            response = self.conn.get_cost_and_usage(**params)
             results_by_time = response.get("ResultsByTime", [])
-
+            next_page_token = response.get("NextPageToken")
             
 
             for row in results_by_time:

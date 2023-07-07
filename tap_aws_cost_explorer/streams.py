@@ -53,6 +53,10 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                         'Type': 'DIMENSION',
                         'Key': 'SERVICE'
                     },
+                    {
+                        'Type': 'DIMENSION',
+                        'Key': 'AZ'
+                    },
                 ],
             )
             next_page = response.get("NextPageToken")
@@ -66,15 +70,15 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
               total = row.get("Total", {})
               groups = row.get("Groups", [])
 
-              # for k, v in total.items():
-              #     yield {
-              #         "time_period_start": time_period.get("Start"),
-              #         "time_period_end": time_period.get("End"),
-              #         "group_keys": None,
-              #         "metric_name": k,
-              #         "amount": v.get("Amount"),
-              #         "amount_unit": v.get("Unit")
-              #     }
+              for k, v in total.items():
+                  yield {
+                      "time_period_start": time_period.get("Start"),
+                      "time_period_end": time_period.get("End"),
+                      "group_keys": None,
+                      "metric_name": k,
+                      "amount": v.get("Amount"),
+                      "amount_unit": v.get("Unit")
+                  }
 
               for group in groups:
                   keys = group.get("Keys", [])

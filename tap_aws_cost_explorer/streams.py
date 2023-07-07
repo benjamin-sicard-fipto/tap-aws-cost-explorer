@@ -53,10 +53,6 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                         'Type': 'DIMENSION',
                         'Key': 'SERVICE'
                     },
-                    {
-                        'Type': 'DIMENSION',
-                        'Key': 'AZ'
-                    },
                 ],
             )
             next_page = response.get("NextPageToken")

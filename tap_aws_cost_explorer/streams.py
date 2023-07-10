@@ -48,7 +48,7 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                   'Not': {
                     'Dimensions': {
                       'Key': "RECORD_TYPE",
-                      'Values': [ "Refund", "Credit" ]
+                      'Values': ["Credit" ]
                     }
                   }
                 },

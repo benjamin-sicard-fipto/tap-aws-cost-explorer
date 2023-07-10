@@ -44,6 +44,14 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
                 },
                 'Granularity': self.config.get("granularity"),
                 'Metrics': self.config.get("metrics"),
+                'Filter': {
+                  'Not': {
+                    'Dimensions': {
+                      'Key': "RECORD_TYPE",
+                      'Values': [ "Refund", "Credit" ]
+                    }
+                  }
+                },
                 'GroupBy': [
                     {
                         'Type': 'DIMENSION',
@@ -62,7 +70,7 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
             response = self.conn.get_cost_and_usage(**params)
             results_by_time = response.get("ResultsByTime", [])
             next_page_token = response.get("NextPageToken")
-            
+
 
             for row in results_by_time:
               time_period = row.get("TimePeriod", {})

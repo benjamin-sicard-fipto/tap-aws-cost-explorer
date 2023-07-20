@@ -37,12 +37,21 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
         end_date = self._get_end_date()
 
         while True:
+            
+            granularity = self.config.get("granularity")
+            if granularity == "HOURLY":
+                time_period_start = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                time_period_end = end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            else:
+                time_period_start = start_date.strftime("%Y-%m-%d")
+                time_period_end = end_date.strftime("%Y-%m-%d")
+
             params = {
                 'TimePeriod': {
-                    'Start': start_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    'End': end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    'Start': time_period_start,
+                    'End': time_period_end
                 },
-                'Granularity': self.config.get("granularity"),
+                'Granularity': granularity,
                 'Metrics': self.config.get("metrics"),
                 'Filter': {
                   'Not': {

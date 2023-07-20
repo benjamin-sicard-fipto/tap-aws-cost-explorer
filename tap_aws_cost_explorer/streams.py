@@ -39,8 +39,8 @@ class CostAndUsageWithResourcesStream(AWSCostExplorerStream):
         while True:
             params = {
                 'TimePeriod': {
-                    'Start': start_date.strftime("%Y-%m-%d"),
-                    'End': end_date.strftime("%Y-%m-%d")
+                    'Start': start_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    'End': end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
                 },
                 'Granularity': self.config.get("granularity"),
                 'Metrics': self.config.get("metrics"),
